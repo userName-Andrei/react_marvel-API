@@ -1,23 +1,23 @@
 {
   "files": {
-    "main.css": "/react_employees/static/css/main.0ed8c3b7.chunk.css",
-    "main.js": "/react_employees/static/js/main.08c7b11a.chunk.js",
-    "main.js.map": "/react_employees/static/js/main.08c7b11a.chunk.js.map",
-    "runtime-main.js": "/react_employees/static/js/runtime-main.aae5a2fe.js",
-    "runtime-main.js.map": "/react_employees/static/js/runtime-main.aae5a2fe.js.map",
-    "static/js/2.5e8bb286.chunk.js": "/react_employees/static/js/2.5e8bb286.chunk.js",
-    "static/js/2.5e8bb286.chunk.js.map": "/react_employees/static/js/2.5e8bb286.chunk.js.map",
-    "index.html": "/react_employees/index.html",
-    "static/css/main.0ed8c3b7.chunk.css.map": "/react_employees/static/css/main.0ed8c3b7.chunk.css.map",
-    "static/js/2.5e8bb286.chunk.js.LICENSE.txt": "/react_employees/static/js/2.5e8bb286.chunk.js.LICENSE.txt",
-    "static/media/error.42292aa1.gif": "/react_employees/static/media/error.42292aa1.gif",
-    "static/media/mjolnir.61f31e18.png": "/react_employees/static/media/mjolnir.61f31e18.png",
-    "static/media/vision.067d4ae1.png": "/react_employees/static/media/vision.067d4ae1.png"
+    "main.css": "/react_marvel-API/static/css/main.a07492e3.chunk.css",
+    "main.js": "/react_marvel-API/static/js/main.08c7b11a.chunk.js",
+    "main.js.map": "/react_marvel-API/static/js/main.08c7b11a.chunk.js.map",
+    "runtime-main.js": "/react_marvel-API/static/js/runtime-main.a3469a5e.js",
+    "runtime-main.js.map": "/react_marvel-API/static/js/runtime-main.a3469a5e.js.map",
+    "static/js/2.5e8bb286.chunk.js": "/react_marvel-API/static/js/2.5e8bb286.chunk.js",
+    "static/js/2.5e8bb286.chunk.js.map": "/react_marvel-API/static/js/2.5e8bb286.chunk.js.map",
+    "index.html": "/react_marvel-API/index.html",
+    "static/css/main.a07492e3.chunk.css.map": "/react_marvel-API/static/css/main.a07492e3.chunk.css.map",
+    "static/js/2.5e8bb286.chunk.js.LICENSE.txt": "/react_marvel-API/static/js/2.5e8bb286.chunk.js.LICENSE.txt",
+    "static/media/error.42292aa1.gif": "/react_marvel-API/static/media/error.42292aa1.gif",
+    "static/media/mjolnir.61f31e18.png": "/react_marvel-API/static/media/mjolnir.61f31e18.png",
+    "static/media/vision.067d4ae1.png": "/react_marvel-API/static/media/vision.067d4ae1.png"
   },
   "entrypoints": [
-    "static/js/runtime-main.aae5a2fe.js",
+    "static/js/runtime-main.a3469a5e.js",
     "static/js/2.5e8bb286.chunk.js",
-    "static/css/main.0ed8c3b7.chunk.css",
+    "static/css/main.a07492e3.chunk.css",
     "static/js/main.08c7b11a.chunk.js"
   ]
 }
