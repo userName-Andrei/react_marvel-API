@@ -1,89 +1,58 @@
-import { Component } from 'react';
-import MarvelService from '../../services/MarvelService';
-import Spinner from '../spinner/Spinner';
-import ErrorMessage from '../errorMessage/ErrorMessage';
-import Skeleton from '../skeleton/Skeleton';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import useMarvelService from '../../services/MarvelService';
+import setContent from '../../utils/setContent';
 
 import './charInfo.scss';
 
-class CharInfo extends Component {
-   
-    state = {
-        char: null,
-        loading: false,
-        error: false
-    }
+const CharInfo = (props) => {
 
-    marvelService = new MarvelService();
+    const [char, setChar] = useState(null);
+    const {charId} = props;
 
-    componentDidMount() {
-        this.updateChar();
-    }
+    const {clearError, process, setProcess, getCharacter} = useMarvelService();
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.charId !== prevProps.charId) {
-            this.updateChar();
-        }
-    }
+    useEffect(() => {
+        updateChar();
+    }, [charId]);
 
     // герой загружен
-    onCharLoaded = (char) => {
-        this.setState({
-            char, 
-            loading: false,
-            error: false
-        });
+    const onCharLoaded = (char) => {
+        setChar(char);
     }
 
-    // загрузка пока выполняется запрос
-    onCharLoading = () => {
-        this.setState({
-            loading: true
-        });
-    }
-
-    // в случае ошибки 
-    onError = () => {
-        this.setState({
-            loading: false,
-            error: true
-        });
-    }
-
-    updateChar = () => {
-        const {charId} = this.props;
+    const updateChar = () => {
+        
         if(!charId) {
             return;
         }
 
-        this.onCharLoading();
+        clearError();
 
-        this.marvelService.getCharacter(charId)
-            .then(this.onCharLoaded)
-            .catch(this.onError);
+        getCharacter(charId)
+            .then(onCharLoaded)
+            .then(() => setProcess('confirmed'));
     }
+    
+    // const skeleton = char || loading || error ? null : <Skeleton/>,
+    //       errorMessage = error ? <ErrorMessage /> : null,
+    //       spinner = loading ? <Spinner /> : null,
+    //       content = !(loading || error || !char) ? <View char={char} /> : null;
 
-    render() {
-        const {char, loading, error} = this.state,
-            skeleton = char || loading || error ? null : <Skeleton/>,
-            errorMessage = error ? <ErrorMessage /> : null,
-            spinner = loading ? <Spinner /> : null,
-            content = !(loading || error || !char) ? <View char={char} /> : null;
-
-        return (
-            <div className="char__info">
-                {skeleton}
-                {errorMessage}
-                {spinner}
-                {content}
-            </div>
-        )
-    }
+    return (
+        <div className="char__info">
+            {/* {skeleton}
+            {errorMessage}
+            {spinner}
+            {content} */}
+            {setContent(process, View, char)}
+        </div>
+    )
 }
 
-const View = ({char}) => {
+const View = ({data}) => {
 
-    const {name, description, thumbnail, homepage, wiki, comics} = char;
+    const {name, description, thumbnail, homepage, wiki, comics} = data;
 
     const drawComics = (arr) => {
         if (typeof(arr) === 'undefined') return;
@@ -95,7 +64,7 @@ const View = ({char}) => {
             return (
                 <li key={i} 
                     className="char__comics-item">
-                    <a href={comic.resourceURI}>{comic.name}</a>
+                    <Link to={`/comics/${comic.resourceURI.split('/').pop()}`}>{comic.name}</Link>
                 </li>
             );
         });

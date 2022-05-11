@@ -16,7 +16,7 @@
     }
     &__item {
         width: 200px;
-        height: 318px;
+        min-height: 318px;
         background-color: $dark;
         box-shadow: 5px 5px 10px rgba(0, 0, 0, .25);
         padding: 15px;
@@ -31,6 +31,20 @@
         &_selected {
             box-shadow: 0 5px 20px $main-color;
             transform: translateY(-8px);
+        }
+        &-enter {
+            transform: translateX(-850px) rotate(40deg);
+        }
+        &-enter-active {
+            transform: translateX(0px) rotate(0deg);
+            transition: all 500ms;
+        }
+        &-exit {
+            transform: translateX(0px) rotate(0deg);
+        }
+        &-exit-active {
+            transform: translateX(-850px) rotate(40deg);
+            transition: all 500ms;
         }
     }
     &__name {

@@ -1,97 +1,67 @@
-import { Component } from 'react';
-import MarvelService from '../../services/MarvelService';
-import Spinner from '../spinner/Spinner';
-import ErrorMessage from '../errorMessage/ErrorMessage';
+import { useState, useEffect } from 'react';
+import useMarvelService from '../../services/MarvelService';
+import setContent from '../../utils/setContent';
 
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
-class RandomChar extends Component {
+const RandomChar = () => {
 
-    state = {
-        char: {},
-        loading: true,
-        error: false
-    }
+    const [char, setChar] = useState({});
 
-    marvelService = new MarvelService();
+    const {getCharacter, clearError, process, setProcess} = useMarvelService();
 
-    componentDidMount() {
-        this.updateChar();
-    }
+    useEffect(() => {
+        updateChar();
+        const timerId = setTimeout(updateChar,60000);
+
+        return () => {
+            clearInterval(timerId);
+        };
+    }, []);
 
     // герой загружен
-    onCharLoaded = (char) => {
-        this.setState({
-            char, 
-            loading: false,
-            error: false
-        });
-    }
-
-    // загрузка пока выполняется запрос
-    onCharLoading = () => {
-        this.setState({
-            loading: true,
-            error: false
-        });
-    }
-
-    // в случае ошибки 
-    onError = () => {
-        this.setState({
-            loading: false,
-            error: true
-        });
+    const onCharLoaded = (char) => {
+        setChar(char);
     }
 
     // метод выполняющий запрос на сервер
-    updateChar = () => {
+    const updateChar = () => {
+        clearError();
+
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
 
-        this.onCharLoading();
-
-        this.marvelService.getCharacter(id)
-            .then(this.onCharLoaded)
-            .catch(this.onError);
+        getCharacter(id)
+            .then(onCharLoaded)
+            .then(() => setProcess('confirmed'));
     }
-    
-    render() {
-        
-        const {char, loading, error} = this.state,
-                errorMessage = error ? <ErrorMessage /> : null,
-                spinner = loading ? <Spinner /> : null,
-                content = !(loading || error) ? <View char={char} /> : null;
-
-        return (
-            <div className="randomchar">
-                {errorMessage}
-                {spinner}
-                {content}
-                <div className="randomchar__static">
-                    <p className="randomchar__title">
-                        Random character for today!<br/>
-                        Do you want to get to know him better?
-                    </p>
-                    <p className="randomchar__title">
-                        Or choose another one
-                    </p>
-                    <button 
-                        className="button button__main"
-                        onClick={() => this.updateChar()}>
-                        <div className="inner">try it</div>
-                    </button>
-                    <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
-                </div>
+          
+    return (
+        <div className="randomchar">
+            {setContent(process, View, char)}
+            <div className="randomchar__static">
+                <p className="randomchar__title">
+                    Random character for today!<br/>
+                    Do you want to get to know him better?
+                </p>
+                <p className="randomchar__title">
+                    Or choose another one
+                </p>
+                <button 
+                    className="button button__main"
+                    onClick={updateChar}>
+                    <div className="inner">try it</div>
+                </button>
+                <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
             </div>
-        )
-    }
+        </div>
+    )
 }
 
 
 // вспомогательный компонент, где отрисовываем левую часть
-const View = ({char}) => {
-    const {name, description, thumbnail, homepage, wiki} = char;
+const View = ({data}) => {
+    const {name, description, thumbnail, homepage, wiki} = data;
     
     return (
         <div className="randomchar__block">
@@ -103,7 +73,7 @@ const View = ({char}) => {
             <div className="randomchar__info">
                 <p className="randomchar__name">{name}</p>
                 <p className="randomchar__descr">
-                    {description}
+                    {!description ? null : description.length > 200 ? `${description.slice(0, 200)}...` : description}
                 </p>
                 <div className="randomchar__btns">
                     <a href={homepage} className="button button__main">

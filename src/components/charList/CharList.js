@@ -1,133 +1,130 @@
-import React, {Component} from 'react';
-import MarvelService from '../../services/MarvelService';
+import {useState, useEffect, useRef, useMemo} from 'react';
+import {CSSTransition, TransitionGroup} from 'react-transition-group';
+import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 
 import './charList.scss';
 
-class CharList extends Component {
-    state = {
-        chars: [],
-        loading: true,
-        newItemLoading: false,
-        error: false,
-        charsOffset: 210,
-        charsEnded: false
-    }
+const setContent = (process, Component, newItem) => {
 
-    marvelService = new MarvelService();
-
-    componentDidMount() {
-        this.onRequestChars();
+    switch (process) {
+        case 'waiting':
+            return <Spinner/>;
+            break;
+        case 'loading':
+            return newItem ? <Component /> : <Spinner/>;
+            break;
+        case 'confirmed':
+            return <Component />;
+            break;
+        case 'error':
+            return <ErrorMessage/>;
+            break;
+        default:
+            throw new Error('Unexpected process state!');
     }
+}
+
+const CharList = (props) => {
+
+    const [chars, setChars] = useState([]),
+        [newItemLoading, setNewItemLoading] = useState(false),
+        [charsOffset, setCharsOffset] = useState(210),
+        [charsEnded, setCharsEnded] = useState(false);
+
+    const {getAllCharacters, process, setProcess} = useMarvelService();
+
+    useEffect(() => {
+        onRequestChars(charsOffset, true);
+    }, []);
 
     // герои загружены
-    onCharsLoaded = (newChars) => {
+    const onCharsLoaded = (newChars) => {
         let ended = false;
 
         if (newChars.length < 9) {
-            ended = true
+            ended = true;
         }
 
-        this.setState(state => ({
-            chars: [...state.chars, ...newChars],
-            loading: false,
-            error: false,
-            newItemLoading: false,
-            charsOffset: state.charsOffset + 9,
-            charsEnded: ended
-        }));
-    }
-
-    // загрузка пока выполняется запрос
-    onCharsLoading = () => {
-        this.setState({
-            newItemLoading: true,
-            error: false
-        });
-    }
-
-    // в случае ошибки
-    onError = () => {
-        this.setState({
-            loading: false,
-            error: true
-        });
+        setChars(chars => [...chars, ...newChars]);
+        setNewItemLoading(false);
+        setCharsOffset(charsOffset => charsOffset + 9);
+        setCharsEnded(ended);
     }
 
     // метод отправки запроса
-    onRequestChars = (offset) => {
-        this.onCharsLoading();
+    const onRequestChars = (offset, initial) => {
+        initial ? setNewItemLoading(false) : setNewItemLoading(true);
 
-        this.marvelService.getAllCharacters(offset)
-            .then(this.onCharsLoaded)
-            .catch(this.onError);
+        getAllCharacters(offset)
+            .then(onCharsLoaded)
+            .then(() => setProcess('confirmed'));
     }
 
-    refsArray = [];
+    const refsArray = useRef([]);
 
-    setRefs = elem => {
-        this.refsArray.push(elem);
-    }
-
-    focusItem = (id) => {
-        this.refsArray.forEach(ref => ref.classList.remove('char__item_selected'));
-        this.refsArray[id].classList.add('char__item_selected');
-        this.refsArray[id].focus();
+    const focusItem = (id) => {
+        refsArray.current.forEach(ref => ref.classList.remove('char__item_selected'));
+        refsArray.current[id].classList.add('char__item_selected');
+        refsArray.current[id].focus();
     }
 
     // метод отрисовки героев
-    drawChars = (chars) => {
+    const drawChars = (chars) => {
         const items = chars.map(({thumbnail, name, id}, i) => {
             return (
-                <li key={id}
-                    ref={this.setRefs} 
-                    className="char__item"
-                    onClick={() => {
-                        this.props.onCharSelected(id);
-                        this.focusItem(i);
-                    }}
-                    onKeyPress={(e) => {
-                        if (e.key === ' ' || e.key === "Enter") {
-                            this.props.onCharSelected(id);
-                            this.focusItem(i);
-                        }
-                    }}
-                    tabIndex='0'> 
-                    <img src={thumbnail}
-                        style={/image_not_available/.test(thumbnail) ? {objectFit: 'contain'} : null}
-                        alt={name}/>
-                    <div className="char__name">{name}</div>
-                </li>
+                <CSSTransition
+                    key={id}
+                    timeout={500}
+                    classNames='char__item'
+                    mountOnEnter>
+                        <li 
+                            ref={(elem) => refsArray.current[i] = elem} 
+                            className="char__item"
+                            onClick={() => {
+                                props.onCharSelected(id);
+                                focusItem(i);
+                            }}
+                            onKeyPress={(e) => {
+                                if (e.key === ' ' || e.key === "Enter") {
+                                    props.onCharSelected(id);
+                                    focusItem(i);
+                                }
+                            }}
+                            tabIndex='0'> 
+                            <img src={thumbnail}
+                                style={/image_not_available/.test(thumbnail) ? {objectFit: 'contain'} : null}
+                                alt={name}/>
+                            <div className="char__name">{name}</div>
+                        </li>
+                </CSSTransition>
             );
         });
 
         return (
             <ul className="char__grid">
-                {items}
+                <TransitionGroup component={null}>
+                    {items}
+                </TransitionGroup>
             </ul>
         );
     }
-    
-    render() {
-        const {chars, loading, error, charsOffset, newItemLoading, charsEnded} = this.state,
-                errorMessage = error ? <ErrorMessage /> : null,
-                spinner = loading ? <Spinner /> : null,
-                content = !(loading || error) ? this.drawChars(chars) : null;
 
-        return (
-            <div className="char__list">
-                {errorMessage}
-                {spinner}
-                {content}
-                <button className="button button__main button__long"
-                        onClick={() => this.onRequestChars(charsOffset)}
-                        disabled={newItemLoading || charsEnded}>
-                    <div className="inner">load more</div>
-                </button>
-            </div>
-        )
-    };
+    const elements = useMemo(() => {
+        return setContent(process, () => drawChars(chars), newItemLoading);
+    }, [process]);
+
+    return (
+        <div className="char__list">
+            {elements}
+            <button className="button button__main button__long"
+                    onClick={() => onRequestChars(charsOffset, false)}
+                    disabled={newItemLoading || charsEnded}>
+                <div className="inner">load more</div>
+            </button>
+        </div>
+    )
 }
 
 export default CharList;
