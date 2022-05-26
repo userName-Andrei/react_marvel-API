@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Routes, Navigate} from 'react-router-dom';
 import AppHeader from "../appHeader/AppHeader";
 import Spinner from '../spinner/Spinner';
 
@@ -22,6 +22,7 @@ const App = () => {
                             <Route path='/comics' element={<ComicsPage/>} />
                                 <Route path='/comics/:id' element={<SinglePage Component={SingleComicPage} dataType='comic'/>} />
                             <Route path='/characters/:id' element={<SinglePage Component={SingleCharPage} dataType='character'/>} />
+                            <Route path='/react_marvel-API' element={<Navigate to='/'/>} />
                             <Route path='*' element={<NotFoundPage/>} />
                         </Routes>
                     </Suspense>
